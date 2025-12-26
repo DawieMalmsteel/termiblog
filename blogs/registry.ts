@@ -1,45 +1,55 @@
-
 import { BlogPost } from '../types';
-import { content as geminiContent } from './tech/post-gemini.ts';
-import { content as tailwindContent } from './tech/post-tailwind.ts';
-import { content as futureContent } from './tech/post-future.ts';
-import { content as myDayContent } from './life/post-my-day.ts';
 
-export const BLOG_REGISTRY: BlogPost[] = [
-  {
-    id: 'gemini-intro',
-    title: 'Getting Started with Gemini API',
-    excerpt: 'Learn how to integrate Google\'s powerful AI into your React applications with multimodal capabilities.',
-    content: geminiContent,
-    date: '2024-03-20 14:30',
-    categories: ['Tech', 'AI', 'Programming'],
-    tags: ['Google', 'Gemini', 'React']
-  },
-  {
-    id: 'tailwind-terminal',
-    title: 'Mastering Tailwind CSS for Terminal UIs',
-    excerpt: 'How to build beautiful, retro-style interfaces using utility classes and catppuccin colors.',
-    content: tailwindContent,
-    date: '2024-03-15 09:15',
-    categories: ['Tech', 'Design', 'Frontend'],
-    tags: ['CSS', 'Tailwind', 'UI/UX']
-  },
-  {
-    id: 'future-web',
-    title: 'The Future of Web',
-    excerpt: 'A look into where the web is heading in 2025 and beyond with AI agents.',
-    content: futureContent,
-    date: '2024-03-10 16:45',
-    categories: ['Tech', 'Future'],
-    tags: ['Future', 'WebDev']
-  },
-  {
-    id: 'my-day-hanoi',
-    title: 'Một ngày làm việc tại Hanoi',
-    excerpt: 'Chia sẻ về trải nghiệm làm việc Remote và cuộc sống thường nhật tại thủ đô.',
-    content: myDayContent,
-    date: '2024-03-25 08:00',
-    categories: ['Life', 'Personal'],
-    tags: ['Hanoi', 'Remote', 'Lifestyle']
+// Import all markdown files using Vite's glob import
+const markdownFiles = import.meta.glob('./**/*.md', { 
+  query: '?raw', 
+  import: 'default',
+  eager: true 
+}) as Record<string, string>;
+
+// Simple frontmatter parser (no dependencies)
+function parseFrontmatter(content: string) {
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
+  const match = content.match(frontmatterRegex);
+  
+  if (!match) {
+    return { data: {}, content };
   }
-];
+  
+  const [, frontmatter, markdown] = match;
+  const data: Record<string, any> = {};
+  
+  frontmatter.split('\n').forEach(line => {
+    const [key, ...valueParts] = line.split(':');
+    if (key && valueParts.length) {
+      const value = valueParts.join(':').trim();
+      data[key.trim()] = value;
+    }
+  });
+  
+  return { data, content: markdown };
+}
+
+export const BLOG_REGISTRY: BlogPost[] = Object.entries(markdownFiles).map(([filepath, content]) => {
+  // Parse frontmatter
+  const { data, content: markdownContent } = parseFrontmatter(content);
+  
+  // Extract filename as ID
+  const filename = filepath.split('/').pop()?.replace('.md', '') || 'untitled';
+  const id = data.id || filename;
+  
+  return {
+    id,
+    title: data.title || 'Untitled Post',
+    excerpt: data.excerpt || '',
+    content: markdownContent,
+    date: data.date || new Date().toISOString(),
+    categories: typeof data.categories === 'string'
+      ? data.categories.split(',').map((c: string) => c.trim())
+      : [],
+    tags: typeof data.tags === 'string'
+      ? data.tags.split(',').map((t: string) => t.trim())
+      : []
+  };
+}).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
