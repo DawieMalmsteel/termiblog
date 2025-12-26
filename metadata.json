@@ -1,0 +1,6 @@
+
+{
+  "name": "TermiBlog Portfolio",
+  "description": "A retro-terminal themed portfolio with a fully functional Markdown blog, search, pagination, and AI assistant.",
+  "requestFramePermissions": []
+}
