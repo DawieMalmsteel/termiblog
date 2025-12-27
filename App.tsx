@@ -15,7 +15,7 @@ const AppContent: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [focusedTile, setFocusedTile] = useState<'sidebar' | 'main'>('main');
-    const [sidebarVisible, setSidebarVisible] = useState(true);
+    const [sidebarVisible, setSidebarVisible] = useState(false);
     const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
     // Determine current mode based on route
@@ -65,12 +65,12 @@ const AppContent: React.FC = () => {
 
             <div className="flex-1 flex gap-4 overflow-hidden min-h-0">
                 {sidebarVisible && !sidebarMinimized && (
-                    <aside 
+                    <aside
                         className={`hidden lg:flex w-72 flex-col hypr-tile shrink-0 overflow-hidden ${focusedTile === 'sidebar' ? 'hypr-tile-active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setFocusedTile('sidebar'); }}
                     >
-                        <MacHeader 
-                            title="sys_info — guest" 
+                        <MacHeader
+                            title="sys_info — guest"
                             active={focusedTile === 'sidebar'}
                             showControls={true}
                             onClose={() => setSidebarVisible(false)}
@@ -86,7 +86,7 @@ const AppContent: React.FC = () => {
                     </aside>
                 )}
 
-                <main 
+                <main
                     className={`flex-1 flex flex-col hypr-tile overflow-hidden min-w-0 min-h-0 ${!sidebarVisible || focusedTile === 'main' ? 'hypr-tile-active' : ''}`}
                     onClick={(e) => { e.stopPropagation(); setFocusedTile('main'); }}
                 >
@@ -98,8 +98,8 @@ const AppContent: React.FC = () => {
                 </main>
             </div>
 
-            <FloatingSidebarToggle 
-                isVisible={!sidebarVisible || sidebarMinimized} 
+            <FloatingSidebarToggle
+                isVisible={!sidebarVisible || sidebarMinimized}
                 onToggle={() => {
                     setSidebarVisible(true);
                     setSidebarMinimized(false);
