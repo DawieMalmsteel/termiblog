@@ -7,9 +7,9 @@ interface FloatingSidebarToggleProps {
     onToggle?: () => void;
 }
 
-export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({ 
+export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
     isVisible = false,
-    onToggle 
+    onToggle
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -50,20 +50,20 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
 
     const handleMouseMove = (e: MouseEvent) => {
         if (!isDragging) return;
-        
+
         const newX = Math.max(0, Math.min(e.clientX - dragStart.x, window.innerWidth - 56));
         const newY = Math.max(0, Math.min(e.clientY - dragStart.y, window.innerHeight - 56));
-        
+
         setPosition({ x: newX, y: newY });
     };
 
     const handleTouchMove = (e: TouchEvent) => {
         if (!isDragging) return;
-        
+
         const touch = e.touches[0];
         const newX = Math.max(0, Math.min(touch.clientX - dragStart.x, window.innerWidth - 56));
         const newY = Math.max(0, Math.min(touch.clientY - dragStart.y, window.innerHeight - 56));
-        
+
         setPosition({ x: newX, y: newY });
     };
 
@@ -77,7 +77,7 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
             window.addEventListener('mouseup', handleMouseUp);
             window.addEventListener('touchmove', handleTouchMove);
             window.addEventListener('touchend', handleMouseUp);
-            
+
             return () => {
                 window.removeEventListener('mousemove', handleMouseMove);
                 window.removeEventListener('mouseup', handleMouseUp);
@@ -89,12 +89,12 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
 
     const handleClick = (e: React.MouseEvent) => {
         // Only open if not dragging (small threshold for click vs drag)
-        if (Math.abs(e.clientX - (position.x + dragStart.x)) < 5 && 
+        if (Math.abs(e.clientX - (position.x + dragStart.x)) < 5 &&
             Math.abs(e.clientY - (position.y + dragStart.y)) < 5) {
-            if (onToggle) {
-                onToggle();
-            } else {
+            if (window.innerWidth < 1024) {
                 setIsOpen(true);
+            } else if (onToggle) {
+                onToggle();
             }
         }
     };
@@ -124,7 +124,7 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
                     <div className="w-full h-full rounded-full bg-[#1e1e2e] flex items-center justify-center">
                         {/* Gradient Icon */}
                         <div className="bg-gradient-to-br from-[#cba6f7] via-[#89b4fa] to-[#a6e3a1] bg-clip-text">
-                            <User size={24} className="text-transparent" style={{ 
+                            <User size={24} className="text-transparent" style={{
                                 filter: 'drop-shadow(0 0 8px rgba(203, 166, 247, 0.3))',
                                 stroke: 'url(#icon-gradient)'
                             }} />
@@ -145,7 +145,7 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
             </button>
 
             {/* Overlay */}
-            {isOpen && !onToggle && (
+            {isOpen && (
                 <div
                     className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
                     onClick={() => setIsOpen(false)}
@@ -153,26 +153,23 @@ export const FloatingSidebarToggle: React.FC<FloatingSidebarToggleProps> = ({
             )}
 
             {/* Sidebar Drawer */}
-            {!onToggle && (
-                <aside
-                    className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#1e1e2e] border-l border-[#313244] z-[70] transition-transform duration-300 shadow-2xl ${
-                        isOpen ? 'translate-x-0' : 'translate-x-full'
+            <aside
+                className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#1e1e2e] border-l border-[#313244] z-[70] transition-transform duration-300 shadow-2xl ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
-                >
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-[#313244]">
-                        <div className="text-[10px] font-black tracking-[0.2em] text-[#cba6f7] uppercase">Profile</div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="w-8 h-8 rounded-lg bg-[#313244]/50 hover:bg-[#313244] flex items-center justify-center transition-colors"
-                        >
-                            <X size={16} className="text-[#a6adc8]" />
-                        </button>
-                    </div>
-                    <div className="p-6 overflow-y-auto h-[calc(100%-60px)] scrollbar-hide">
-                        <SidebarProfile />
-                    </div>
-                </aside>
-            )}
+            >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#313244]">
+                    <div className="text-[10px] font-black tracking-[0.2em] text-[#cba6f7] uppercase">Profile</div>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="w-8 h-8 rounded-lg bg-[#313244]/50 hover:bg-[#313244] flex items-center justify-center transition-colors"
+                    >
+                        <X size={16} className="text-[#a6adc8]" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto h-[calc(100%-60px)] scrollbar-hide">
+                    <SidebarProfile />
+                </div>
+            </aside>
         </>
     );
 };

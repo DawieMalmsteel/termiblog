@@ -32,7 +32,7 @@ export const handleNeofetch = (addLine: (type: string, content: React.ReactNode)
     const userInfo = NEOFETCH_INFO.user.split('@');
 
     addLine('output', (
-        <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start md:items-center md:justify-center py-4 md:py-6 font-mono animate-in fade-in slide-in-from-left-4 duration-700 max-w-full overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-center md:items-center md:justify-center py-4 md:py-6 font-mono animate-in fade-in slide-in-from-left-4 duration-700 max-w-full overflow-hidden">
             {/* Left: Avatar + Username */}
             <div className="flex flex-col items-center gap-4 shrink-0 self-center md:self-auto">
                 <div className="relative group">
@@ -60,13 +60,13 @@ export const handleNeofetch = (addLine: (type: string, content: React.ReactNode)
             <div className="hidden md:block w-[2px] self-stretch bg-gradient-to-b from-transparent via-[#45475a] to-transparent opacity-50"></div>
 
             {/* Right: Neofetch Info + Color Blocks */}
-            <div className="flex flex-col gap-1 min-w-0">
-                <div className="flex flex-col gap-y-2 lg:max-w-[390px]">
+            <div className="flex flex-col gap-1 min-w-0 items-center md:items-start w-full md:w-auto">
+                <div className="flex flex-col gap-y-2 w-full max-w-[240px] md:max-w-[390px]">
                     {Object.entries(NEOFETCH_INFO).map(([key, value]) => {
                         if (key === 'user') return null;
                         const config = iconMap[key] || { icon: <Settings size={12} />, iconColor: 'text-[#cba6f7]', textColor: 'text-[#89b4fa]' };
                         return (
-                            <div key={key} className="flex justify-between items-center gap-4 text-xs md:text-sm group/item">
+                            <div key={key} className="flex justify-between items-center gap-4 text-[10px] md:text-sm group/item">
                                 <span className={`${config.textColor} flex items-center gap-2 font-bold shrink-0 leading-none`}>
                                     <span className={`opacity-70 group-hover/item:opacity-100 transition-opacity ${config.iconColor}`}>
                                         {config.icon}
@@ -81,7 +81,7 @@ export const handleNeofetch = (addLine: (type: string, content: React.ReactNode)
                     })}
                 </div>
 
-                <div className="mt-4 md:mt-6 flex flex-wrap gap-2 md:gap-2.5 justify-center md:justify-start">
+                <div className="mt-4 md:mt-6 flex flex-wrap gap-2 md:gap-2.5 justify-center md:justify-start w-full max-w-[240px] md:max-w-none">
                     {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
                         <div key={i} className="w-6 h-4 md:w-10 md:h-6 rounded-md md:rounded-lg shadow-lg border border-white/5 transition-all hover:-translate-y-1 cursor-default active:scale-90" style={{
                             backgroundColor: i === 0 ? '#313244' : i === 1 ? '#f38ba8' : i === 2 ? '#a6e3a1' : i === 3 ? '#f9e2af' : i === 4 ? '#89b4fa' : i === 5 ? '#cba6f7' : i === 6 ? '#94e2d5' : '#cdd6f4'

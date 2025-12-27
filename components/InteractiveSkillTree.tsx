@@ -5,8 +5,8 @@ import { CategoryNode } from '../types';
 
 const useTransitionValue = (targetValue: number, duration: number = 500) => {
     const [value, setValue] = useState(targetValue);
-    const frameRef = useRef<number>();
-    const startTimeRef = useRef<number>();
+    const frameRef = useRef<number>(null);
+    const startTimeRef = useRef<number>(null);
     const startValueRef = useRef<number>(targetValue);
 
     useEffect(() => {
@@ -125,6 +125,22 @@ export const InteractiveSkillTree: React.FC = () => {
         });
     };
 
+    const onTouchStartContainer = (e: React.TouchEvent) => {
+        if (!scrollContainerRef.current) return;
+        if (draggingNodeId) return;
+
+        const touch = e.touches[0];
+        setIsCanvasDragging(true);
+        setCanvasStartPos({
+            x: touch.pageX - scrollContainerRef.current.offsetLeft,
+            y: touch.pageY - scrollContainerRef.current.offsetTop
+        });
+        setScrollPos({
+            left: scrollContainerRef.current.scrollLeft,
+            top: scrollContainerRef.current.scrollTop
+        });
+    };
+
     const onMouseDownNode = (e: React.MouseEvent, nodeId: string) => {
         e.stopPropagation();
         e.preventDefault();
@@ -133,11 +149,18 @@ export const InteractiveSkillTree: React.FC = () => {
         setDragStartNodeOffset(nodeOffsets[nodeId] || { x: 0, y: 0 });
     };
 
-    const onMouseMove = (e: React.MouseEvent) => {
+    const onTouchStartNode = (e: React.TouchEvent, nodeId: string) => {
+        e.stopPropagation();
+        const touch = e.touches[0];
+        setDraggingNodeId(nodeId);
+        setDragStartMousePos({ x: touch.pageX, y: touch.pageY });
+        setDragStartNodeOffset(nodeOffsets[nodeId] || { x: 0, y: 0 });
+    };
+
+    const handleMove = (pageX: number, pageY: number) => {
         if (draggingNodeId) {
-            e.preventDefault();
-            const dx = e.pageX - dragStartMousePos.x;
-            const dy = e.pageY - dragStartMousePos.y;
+            const dx = pageX - dragStartMousePos.x;
+            const dy = pageY - dragStartMousePos.y;
 
             setNodeOffsets(prev => ({
                 ...prev,
@@ -150,9 +173,8 @@ export const InteractiveSkillTree: React.FC = () => {
         }
 
         if (isCanvasDragging && scrollContainerRef.current) {
-            e.preventDefault();
-            const x = e.pageX - scrollContainerRef.current.offsetLeft;
-            const y = e.pageY - scrollContainerRef.current.offsetTop;
+            const x = pageX - scrollContainerRef.current.offsetLeft;
+            const y = pageY - scrollContainerRef.current.offsetTop;
             const walkX = (x - canvasStartPos.x) * 1.5;
             const walkY = (y - canvasStartPos.y) * 1.5;
             scrollContainerRef.current.scrollLeft = scrollPos.left - walkX;
@@ -160,12 +182,22 @@ export const InteractiveSkillTree: React.FC = () => {
         }
     };
 
-    const onMouseUp = () => {
-        setIsCanvasDragging(false);
-        setDraggingNodeId(null);
+    const onMouseMove = (e: React.MouseEvent) => {
+        if (!draggingNodeId && !isCanvasDragging) return;
+        e.preventDefault();
+        handleMove(e.pageX, e.pageY);
     };
 
-    const onMouseLeave = () => {
+    const onTouchMove = (e: React.TouchEvent) => {
+        if (!draggingNodeId && !isCanvasDragging) return;
+        // Don't preventDefault if we aren't dragging something specifically in our UI
+        // to allow standard scroll if needed. But here we want to drag the canvas.
+        if (e.cancelable) e.preventDefault();
+        const touch = e.touches[0];
+        handleMove(touch.pageX, touch.pageY);
+    };
+
+    const onEnd = () => {
         setIsCanvasDragging(false);
         setDraggingNodeId(null);
     };
@@ -175,9 +207,12 @@ export const InteractiveSkillTree: React.FC = () => {
             className="w-full h-[320px] overflow-hidden relative cursor-grab active:cursor-grabbing border-y border-[#45475a]/30 bg-[#1e1e2e]/50 backdrop-blur-sm"
             ref={scrollContainerRef}
             onMouseDown={onMouseDownContainer}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseLeave}
+            onMouseUp={onEnd}
+            onMouseLeave={onEnd}
             onMouseMove={onMouseMove}
+            onTouchStart={onTouchStartContainer}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onEnd}
         >
             <div className="min-w-[1200px] h-[700px] relative pl-10 flex items-center select-none">
 
@@ -300,6 +335,7 @@ export const InteractiveSkillTree: React.FC = () => {
                         >
                             <div
                                 onMouseDown={(e) => onMouseDownNode(e, cat.id)}
+                                onTouchStart={(e) => onTouchStartNode(e, cat.id)}
                                 onClick={(e) => handleCategoryClick(e, cat.id)}
                                 className={`flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-[#1e1e2e] border border-[#45475a] shadow-md cursor-grab active:cursor-grabbing group transition-all duration-300 ease-out hover:border-[var(--node-color)] hover:shadow-[0_0_15px_var(--node-color)]`}
                                 style={{
@@ -338,6 +374,7 @@ export const InteractiveSkillTree: React.FC = () => {
                                     <React.Fragment key={skill.id}>
                                         <div
                                             onMouseDown={(e) => onMouseDownNode(e, skill.id)}
+                                            onTouchStart={(e) => onTouchStartNode(e, skill.id)}
                                             onClick={(e) => handleSkillClick(e, skill.id)}
                                             onMouseEnter={() => setHoveredSkillId(skill.id)}
                                             onMouseLeave={() => setHoveredSkillId(null)}
@@ -380,6 +417,7 @@ export const InteractiveSkillTree: React.FC = () => {
                                                 <div
                                                     key={projId}
                                                     onMouseDown={(e) => onMouseDownNode(e, projId)}
+                                                    onTouchStart={(e) => onTouchStartNode(e, projId)}
                                                     className="absolute flex flex-col items-start p-2 rounded-lg bg-[#11111b] border border-[#313244] w-[180px] hover:border-[#cba6f7] group/proj transition-all duration-300 cursor-grab active:cursor-grabbing"
                                                     style={{
                                                         left: '50%', top: '50%',

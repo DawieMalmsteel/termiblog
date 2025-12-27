@@ -26,3 +26,23 @@ export const COMMANDS = [
   'ai [query] - Ask my AI assistant',
   'clear - Clear the terminal screen'
 ];
+
+export const SOCIAL_LINKS = [
+  { label: "GitHub", url: "https://github.com/hoang-sh", icon: "Github", color: "text-[#cba6f7]" },
+  { label: "LinkedIn", url: "https://linkedin.com/in/hoang-sh", icon: "Linkedin", color: "text-[#89b4fa]" },
+  { label: "Twitter", url: "https://twitter.com/hoang_sh", icon: "Twitter", color: "text-[#89dceb]" },
+  { label: "Email", url: "mailto:contact@hoang.sh", icon: "Mail", color: "text-[#a6e3a1]" }
+];
+
+export const PROFILE_STATS = [
+  { label: "Status", value: "Online", icon: "Activity", color: "text-[#a6e3a1]" },
+  { label: "Location", value: "Hanoi, VN", icon: "MapPin", color: "text-[#fab387]" },
+  { label: "Work", value: "Open to Offers", icon: "Briefcase", color: "text-[#89b4fa]" }
+];
+
+export const STACK_OVERVIEW = [
+  { label: "TS/React", icon: "Code2", color: "text-[#89b4fa]" },
+  { label: "Rust/Go", icon: "Cpu", color: "text-[#fab387]" },
+  { label: "Postgres", icon: "Database", color: "text-[#a6e3a1]" },
+  { label: "DevOps", icon: "Settings", color: "text-[#f38ba8]" }
+];
