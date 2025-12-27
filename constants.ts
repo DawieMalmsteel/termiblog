@@ -2,18 +2,17 @@
 import { BLOG_REGISTRY } from './blogs/registry.ts';
 
 export const NEOFETCH_INFO = {
-  user: "guest@macos-catppuccin",
-  os: "Catppuccin Mocha (Hyprland)",
-  host: "Gemini-Powered Portfolio",
-  kernel: "6.12.0-termi-blog",
-  uptime: "1 hour, 42 mins",
-  packages: "1337 (pacman)",
-  shell: "zsh 5.9",
-  resolution: "1920x1080",
-  wm: "Hyprland",
-  cpu: "Google Gemini 3 Flash",
-  gpu: "WebGL 2.0 (M1 Ultra)",
-  memory: "16GB / 64GB"
+  user: "Hoàng@portfolio",
+  role: "Full-stack Developer",
+  location: "Việt Nam 🇻🇳",
+  experience: "3+ years",
+  editor: "Neovim / VS Code",
+  terminal: "Kitty + Zsh",
+  os: "Arch Linux / macOS",
+  languages: "TypeScript, Go, Rust",
+  frameworks: "React, Next.js, Node",
+  databases: "PostgreSQL, MongoDB",
+  tools: "Docker, Git, Figma"
 };
 
 export const MOCK_POSTS = BLOG_REGISTRY;

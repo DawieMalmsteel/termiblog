@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { MOCK_POSTS, NEOFETCH_INFO } from '../constants';
 import { BlogPost, AppMode } from '../types';
-import { skillsData } from '../skills';
+import { InteractiveSkillTree } from '../components/InteractiveSkillTree';
 
 const ICON_MAP: Record<string, any> = {
     Server, Monitor, Database, Link: BookOpen, Code2, Box: Package,
@@ -17,17 +17,16 @@ const ICON_MAP: Record<string, any> = {
 
 export const handleNeofetch = (addLine: (type: string, content: React.ReactNode) => void) => {
     const iconMap: Record<string, { icon: React.ReactNode; iconColor: string; textColor: string }> = {
-        os: { icon: <Monitor size={14} />, iconColor: 'text-[#cba6f7]', textColor: 'text-[#cba6f7]' },
-        host: { icon: <Server size={14} />, iconColor: 'text-[#f5c2e7]', textColor: 'text-[#f5c2e7]' },
-        kernel: { icon: <Settings size={14} />, iconColor: 'text-[#f38ba8]', textColor: 'text-[#f38ba8]' },
-        uptime: { icon: <Clock size={14} />, iconColor: 'text-[#fab387]', textColor: 'text-[#fab387]' },
-        packages: { icon: <Package size={14} />, iconColor: 'text-[#f9e2af]', textColor: 'text-[#f9e2af]' },
-        shell: { icon: <Terminal size={14} />, iconColor: 'text-[#a6e3a1]', textColor: 'text-[#a6e3a1]' },
-        resolution: { icon: <Maximize size={14} />, iconColor: 'text-[#94e2d5]', textColor: 'text-[#94e2d5]' },
-        wm: { icon: <Layers size={14} />, iconColor: 'text-[#89dceb]', textColor: 'text-[#89dceb]' },
-        cpu: { icon: <Cpu size={14} />, iconColor: 'text-[#74c7ec]', textColor: 'text-[#74c7ec]' },
-        gpu: { icon: <Zap size={14} />, iconColor: 'text-[#89b4fa]', textColor: 'text-[#89b4fa]' },
-        memory: { icon: <Database size={14} />, iconColor: 'text-[#b4befe]', textColor: 'text-[#b4befe]' }
+        role: { icon: <User size={14} />, iconColor: 'text-[#cba6f7]', textColor: 'text-[#cba6f7]' },
+        location: { icon: <Server size={14} />, iconColor: 'text-[#f5c2e7]', textColor: 'text-[#f5c2e7]' },
+        experience: { icon: <Clock size={14} />, iconColor: 'text-[#fab387]', textColor: 'text-[#fab387]' },
+        editor: { icon: <Code2 size={14} />, iconColor: 'text-[#a6e3a1]', textColor: 'text-[#a6e3a1]' },
+        terminal: { icon: <Terminal size={14} />, iconColor: 'text-[#94e2d5]', textColor: 'text-[#94e2d5]' },
+        os: { icon: <Monitor size={14} />, iconColor: 'text-[#89dceb]', textColor: 'text-[#89dceb]' },
+        languages: { icon: <Cpu size={14} />, iconColor: 'text-[#74c7ec]', textColor: 'text-[#74c7ec]' },
+        frameworks: { icon: <Layers size={14} />, iconColor: 'text-[#89b4fa]', textColor: 'text-[#89b4fa]' },
+        databases: { icon: <Database size={14} />, iconColor: 'text-[#b4befe]', textColor: 'text-[#b4befe]' },
+        tools: { icon: <Package size={14} />, iconColor: 'text-[#f9e2af]', textColor: 'text-[#f9e2af]' }
     };
 
     const userInfo = NEOFETCH_INFO.user.split('@');
@@ -100,7 +99,7 @@ export const createCommandHandler = (
     setCurrentPost: (post: BlogPost | null) => void,
     clearHistory: () => void
 ) => {
-    return async (cmd: string) => {
+    const executeCommand = async (cmd: string): Promise<void> => {
         const fullCmd = cmd.trim();
         if (!fullCmd) return;
 
@@ -126,9 +125,9 @@ export const createCommandHandler = (
                     { cmd: 'date', desc: 'Temporal sync', icon: <Calendar size={14} className="text-[#fab387]" /> },
                     { cmd: 'ls', desc: 'List active nodes', icon: <GitBranch size={14} className="text-[#89b4fa]" /> },
                     { cmd: 'blog', desc: 'Open knowledge archive', icon: <Terminal size={14} className="text-[#89b4fa]" /> },
-                    { cmd: 'read [id]', desc: 'Stream specific record', icon: <BookOpen size={14} className="text-[#fab387]" /> },
-                    { cmd: 'ai [query]', desc: 'Query Meow-Bot (Legacy AI)', icon: <Sparkles size={14} className="text-[#f5c2e7]" /> },
-                    { cmd: 'clear', desc: 'Purge terminal buffer', icon: <Trash2 size={14} className="text-[#94e2d5]" /> }
+                    { cmd: 'read [id]', desc: 'Stream specific record', icon: <BookOpen size={14} className="text-[#fab387]" />, hasArgs: true },
+                    { cmd: 'ai [query]', desc: 'Query Meow-Bot (Legacy AI)', icon: <Sparkles size={14} className="text-[#f5c2e7]" />, hasArgs: true },
+                    { cmd: 'clear', desc: 'Purge terminal buffer', icon: <Trash2 size={14} className="text-[#94e2d5]" />, hasArgs: false }
                 ];
 
                 addLine('info', (
@@ -139,7 +138,11 @@ export const createCommandHandler = (
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-2">
                             {helpMap.map((item, i) => (
-                                <div key={i} className="flex items-center gap-4 group cursor-default">
+                                <div
+                                    key={i}
+                                    className={`flex items-center gap-4 group transition-all ${item.hasArgs ? 'cursor-default opacity-70' : 'cursor-pointer hover:translate-x-1'}`}
+                                    onClick={() => !item.hasArgs && executeCommand(item.cmd.split(' ')[0])}
+                                >
                                     <div className="w-8 h-8 rounded-lg bg-[#313244]/50 flex items-center justify-center group-hover:bg-[#313244] transition-colors">
                                         {item.icon}
                                     </div>
@@ -154,50 +157,7 @@ export const createCommandHandler = (
                 ));
                 break;
             case 'about':
-                addLine('info', (
-                    <div className="py-4 font-mono animate-in fade-in duration-700 max-w-full">
-                        <div className="flex items-center gap-3 mb-4 border-b border-[#313244] pb-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#cba6f7]/10 flex items-center justify-center">
-                                <User size={20} className="text-[#cba6f7]" />
-                            </div>
-                            <div>
-                                <span className="text-[#cba6f7] font-black uppercase tracking-[0.2em] text-sm block leading-none">System Entity: Hoàng .sh</span>
-                                <span className="text-[#6c7086] text-[10px] uppercase font-bold tracking-widest mt-1 block leading-none">Full-stack Developer & Web3 Enthusiast</span>
-                            </div>
-                        </div>
-
-                        <div className="mb-6 text-sm text-[#bac2de] leading-relaxed italic border-l-2 border-[#cba6f7] pl-4 py-1">
-                            "{skillsData.bio}"
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                            {skillsData.categories.map((cat) => {
-                                const IconComp = ICON_MAP[cat.icon] || Server;
-                                return (
-                                    <div key={cat.id} className="flex flex-col gap-2">
-                                        <div className={`flex items-center gap-2 ${cat.color}`}>
-                                            <IconComp size={14} className="shrink-0" />
-                                            <span className="font-black tracking-widest uppercase text-[11px]">{cat.title}</span>
-                                        </div>
-                                        <div className="ml-4 text-[#a6adc8] space-y-1 text-xs">
-                                            {cat.skills.map((skill, sIdx) => {
-                                                const SkillIcon = ICON_MAP[skill.icon] || Code2;
-                                                const isLast = sIdx === cat.skills.length - 1;
-                                                return (
-                                                    <div key={sIdx} className="flex items-center gap-2">
-                                                        {isLast ? '└── ' : '├── '}
-                                                        <SkillIcon size={11} className={`${skill.iconColor} shrink-0`} />
-                                                        {skill.label}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                ));
+                addLine('info', <InteractiveSkillTree />);
                 break;
             case 'neofetch':
                 handleNeofetch(addLine);
@@ -248,7 +208,7 @@ export const createCommandHandler = (
                     </div>
                 ));
 
-                const randomDelay = Math.floor(Math.random() * 2000) + 1000;
+                const randomDelay = Math.floor(Math.random() * 2000);
                 await new Promise(resolve => setTimeout(resolve, randomDelay));
 
                 const meowCount = Math.floor(Math.random() * 49) + 1;
@@ -279,4 +239,5 @@ export const createCommandHandler = (
                 addLine('error', `zsh: command not found: ${baseCmd}`);
         }
     };
+    return executeCommand;
 };
